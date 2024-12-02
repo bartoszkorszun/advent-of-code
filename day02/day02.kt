@@ -9,21 +9,7 @@ fun main() {
     var countSafe = 0
 
     for (array in listOfArrays) {
-        var isDecreasing = array[0] > array[1]
-        var isSafe = true
-
-        for (j in 1 until array.size) {
-            if ((isDecreasing && array[j - 1] < array[j]) || (!isDecreasing && array[j - 1] > array[j])) {
-                isSafe = false
-                break
-            }
-            if (Math.abs(array[j] - array[j - 1]) < 1 || Math.abs(array[j] - array[j - 1]) > 3) {
-                isSafe = false
-                break
-            }
-        }
-
-        if (isSafe) {
+        if (checkArray(array)) {
             countSafe++
         }
     }
@@ -38,3 +24,35 @@ fun readFile(fileName: String, listOfArrays: MutableList<IntArray>) {
     }
 }
 
+fun checkArray(array: IntArray): Boolean {
+    if (isStrictlyIncreasing(array) || isStrictlyDecreasing(array)) {
+        return true
+    }
+
+    for (i in array.indices) {
+        val newArray = array.filterIndexed { index, _ -> index != i }.toIntArray()
+        if (isStrictlyIncreasing(newArray) || isStrictlyDecreasing(newArray)) {
+            return true
+        }
+    }
+
+    return false
+}
+
+fun isStrictlyIncreasing(array: IntArray): Boolean {
+    for (i in 1 until array.size) {
+        if (array[i] <= array[i - 1] || Math.abs(array[i] - array[i - 1]) > 3) {
+            return false
+        }
+    }
+    return true
+}
+
+fun isStrictlyDecreasing(array: IntArray): Boolean {
+    for (i in 1 until array.size) {
+        if (array[i] >= array[i - 1] || Math.abs(array[i] - array[i - 1]) > 3) {
+            return false
+        }
+    }
+    return true
+}
