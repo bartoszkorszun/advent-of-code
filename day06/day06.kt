@@ -1,99 +1,114 @@
-import java.io.File
+import kotlin.io.path.Path
+import kotlin.io.path.readText
+
+// TODO
 
 fun main() {
-    val fileName = "input.txt"
-    val fileContent = File(fileName).readLines()
+    val day = "06"
 
-    val matrix = fileContent.map { line -> line.toCharArray().toMutableList() }.toMutableList()
+    fun part1(input: List<String>): Int {
 
-    var guard: Pair<Int, Int>? = null
+        val directions = listOf<Pair<Char, Pair<Int, Int>>>(
+            '^' to Pair(-1, 0),
+            '>' to Pair( 0, 1),
+            'v' to Pair( 1, 0),
+            '<' to Pair( 0,-1)
+        )
 
-    for (i in matrix.indices) {
-        for (j in matrix[i].indices) {
-            if (matrix[i][j] == '^') {
-                guard = i to j
+        val rows = input.size
+        val cols = input[0].length
+
+        var (col, row, dirIndex) = input
+            .flatMapIndexed { row, line ->
+                line.mapIndexedNotNull { col, char ->
+                    val dirIndex = directions.indexOfFirst { it.first == char }
+                    if (dirIndex != -1) Triple(col, row, dirIndex) else null
+                }
+            }
+            .first()
+
+        val visitedPositions: MutableSet<Pair<Int, Int>> = mutableSetOf()
+
+        while (true) {
+            visitedPositions.add(Pair(row, col))
+            val (dRow, dCol) = directions[dirIndex].second
+            val newRow = row + dRow
+            val newCol = col + dCol
+            if (newRow !in 0 until rows || newCol !in 0 until cols) {
                 break
+            } else if (input[newRow][newCol] == '#') {
+                dirIndex = (dirIndex + 1) % directions.size
+            } else {
+                row = newRow
+                col = newCol
             }
         }
+
+        return visitedPositions.size
     }
 
-    while (true) {
-        val (i, j) = guard!!
-        val direction = matrix[i][j]
+    fun part2(input: List<String>): Int {
 
-        if (checkEdges(matrix, guard, direction)) {
-            break
+        val directions = listOf<Pair<Char, Pair<Int, Int>>>(
+            '^' to Pair(-1, 0),
+            '>' to Pair( 0, 1),
+            'v' to Pair( 1, 0),
+            '<' to Pair( 0,-1)
+        )
+
+        val rows = input.size
+        val cols = input[0].length
+
+        val (col, row, dirIndex) = input
+            .flatMapIndexed { row, line ->
+                line.mapIndexedNotNull { col, char ->
+                    val dirIndex = directions.indexOfFirst { it.first == char }
+                    if (dirIndex != -1) Triple(col, row, dirIndex) else null
+                }
+            }
+            .first()
+
+        var loops = 0
+
+        for (y in 0 until rows) {
+            for (x in 0 until cols) {
+
+                if (row == y && col == x) continue
+
+                var row = row
+                var col = col
+                var dirIndex = dirIndex
+
+                val visitedPositions: MutableSet<Triple<Int, Int, Int>> = mutableSetOf()
+
+                while (true) {
+                    if (!visitedPositions.add(Triple(row, col, dirIndex))) {
+                        loops += 1
+                        break
+                    }
+
+                    val (dRow, dCol) = directions[dirIndex].second
+                    val newRow = row + dRow
+                    val newCol = col + dCol
+                    if (newRow !in 0 until rows || newCol !in 0 until cols) {
+                        break
+                    } else if ((newRow == y && newCol == x) || input[newRow][newCol] == '#') {
+                        dirIndex = (dirIndex + 1) % directions.size
+                    } else {
+                        row = newRow
+                        col = newCol
+                    }
+                }
+            }
         }
 
-        guard = moveAndMark(matrix, guard, direction)
+
+        return loops
     }
 
-    val result = countX(matrix) + 1
-    println(result)
+    val input = readInput()
+    println(part1(input))
+    println(part2(input))
 }
 
-fun moveAndMark(matrix: MutableList<MutableList<Char>>, guard: Pair<Int, Int>, direction: Char): Pair<Int, Int> {
-    val (i, j) = guard
-    var newI = i
-    var newJ = j
-
-    when (direction) {
-        '^' -> {
-            if (matrix[i - 1][j] == '#') {
-                matrix[i][j] = '>'
-                return i to j
-            }
-            newI--
-        }
-        'v' -> {
-            if (matrix[i + 1][j] == '#') {
-                matrix[i][j] = '<'
-                return i to j
-            }
-            newI++
-        }
-        '<' -> {
-            if (matrix[i][j - 1] == '#') {
-                matrix[i][j] = '^'
-                return i to j
-            }
-            newJ--    
-        }
-        '>' -> {
-            if (matrix[i][j + 1] == '#') {
-                matrix[i][j] = 'v'
-                return i to j
-            }
-            newJ++
-        }
-    }
-
-    matrix[i][j] = 'X'
-    matrix[newI][newJ] = direction
-
-    return newI to newJ
-}
-
-fun checkEdges(matrix: MutableList<MutableList<Char>>, guard: Pair<Int, Int>, direction: Char): Boolean {
-    val (i, j) = guard
-
-    return when (direction) {
-        '^' -> i == 0
-        'v' -> i == matrix.size - 1
-        '<' -> j == 0
-        '>' -> j == matrix[i].size - 1
-        else -> false
-    }
-}
-
-fun countX(matrix: MutableList<MutableList<Char>>): Int {
-    var count = 0
-    for (i in matrix.indices) {
-        for (j in matrix[i].indices) {
-            if (matrix[i][j] == 'X') {
-                count++
-            }
-        }
-    }
-    return count
-}
+fun readInput() = Path("input.txt").readText().trim().lines()
