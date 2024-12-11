@@ -1,40 +1,54 @@
 import java.io.File
 
 fun main() {
-    val stones = File("input.txt").readText().split(" ").map { it.toString().toLong() }.toMutableList()
+    
+    val stones = File("input.txt").readText().split(" ")
+        .map { it.toLong() }
+        .groupingBy { it }
+        .eachCount()
+        .mapValues { it.value.toLong() }
+        .toMutableMap()
 
-    for (j in 0 until 25) {
-        var i = 0
-        while (i < stones.size) {
-            if (stones[i] == 0L) {
-                stones[i] = 1L
-            } else if (isNumOfDigitsEven(stones[i])) {
-                val (new1, new2) = divNum(stones[i])
-                stones[i] = new1
-                i++
-                stones.add(i, new2)
-            } else {
-                stones[i] *= 2024L
+    repeat(75) { 
+        val newStones = mutableMapOf<Long, Long>()
+
+        for ((stone, count) in stones) {
+            when {
+                stone == 0L -> {
+                    newStones[1L] = newStones.getOrDefault(1L, 0L) + count
+                }
+                isNumOfDigitsEven(stone) -> {
+                    val (new1, new2) = divNum(stone)
+                    newStones[new1] = newStones.getOrDefault(new1, 0L) + count
+                    newStones[new2] = newStones.getOrDefault(new2, 0L) + count
+                }
+                else -> {
+                    val newStone = stone * 2024L
+                    newStones[newStone] = newStones.getOrDefault(newStone, 0L) + count
+                }
             }
-            i++
         }
+
+        stones.clear()
+        stones.putAll(newStones)
     }
-    println(stones.size)
+
+    println(stones.values.sum())
 }
 
 fun isNumOfDigitsEven(num: Long): Boolean {
-    val str = num.toString()
-    return if (str.length % 2 == 0) {
-        true
-    } else {
-        false
+    var count = 0
+    var temp = num
+    while (temp > 0) {
+        count++
+        temp /= 10
     }
+    return count % 2 == 0
 }
 
-fun divNum(num: Long): Pair<Long,Long> {
-    val str = num.toString()
-    var (new1,new2) = Pair(0L,0L)
-    new1 = str.substring(0, str.length / 2).toLong()
-    new2 = str.substring(str.length / 2, str.length).toLong()
-    return Pair(new1,new2)
+fun divNum(num: Long): Pair<Long, Long> {
+    val divisor = Math.pow(10.0, (num.toString().length / 2).toDouble()).toLong()
+    val new1 = num / divisor
+    val new2 = num % divisor
+    return Pair(new1, new2)
 }
