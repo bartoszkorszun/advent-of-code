@@ -1,59 +1,113 @@
-import java.io.File
+import kotlin.io.path.Path
+import kotlin.io.path.readText
+
+//ToDo
 
 fun main() {
-    val input = File("input.txt").readLines().map { it.toMutableList() }.toMutableList()
-    val visited = mutableSetOf<Pair<Int,Int>>()
-
-    var cost = 0
-    for (i in input.indices) {
-        for (j in input[i].indices) {
-            if (visited.contains(Pair(i, j))) {
-                continue
-            }
-            val (area, perimeter) = findAndCalculateField(input, i, j, input[i][j], visited)    
-            cost += area * perimeter
-            println("cost of ${input[i][j]}: $cost")
-        }
+    data class SimplePoint(val x: Int, val y: Int) {
+        operator fun plus(other: SimplePoint) = SimplePoint(x + other.x, y + other.y)
+        fun inBounds(width: Int, height: Int) = x in 0 until width && y in 0 until height
     }
-
-    println("cost: $cost")
-}
-
-fun findAndCalculateField(
-    input: MutableList<MutableList<Char>>, 
-    i: Int, 
-    j: Int, 
-    current: Char, 
-    visited: MutableSet<Pair<Int,Int>>
-): Pair<Int, Int> {
-    if (i < 0 || i >= input.size || j < 0 || j >= input[i].size || visited.contains(Pair(i, j)) || input[i][j] != current) {
-        return Pair(0, 0)
-    }
-    
-    visited.add(Pair(i, j))
-
-    var area = 1
-    var perimeter = 0
 
     val directions = listOf(
-        Pair(-1, 0),
-        Pair(0, 1),
-        Pair(1, 0),
-        Pair(0, -1)
+        SimplePoint(1, 0), SimplePoint(-1, 0), // Right, Left
+        SimplePoint(0, 1), SimplePoint(0, -1) // Down, Up
     )
+    val horizontal = listOf(SimplePoint(1, 0), SimplePoint(-1, 0))
+    val vertical = listOf(SimplePoint(0, 1), SimplePoint(0, -1))
 
-    for ((di, dj) in directions) {
-        val ni = i + di
-        val nj = j + dj
+    fun parseInput(input: List<String>) = input.map { it.toCharArray() }.toTypedArray()
 
-        if (ni >= 0 && ni < input.size && nj >= 0 && nj < input[ni].size && input[ni][nj] == current) {
-            val (subArea, subPerimeter) = findAndCalculateField(input, ni, nj, current, visited)
-            area += subArea
-            perimeter += subPerimeter
-        } else {
-            perimeter++
+    fun Array<CharArray>.isSameChar(c: Char, point: SimplePoint): Boolean =
+        point.inBounds(this[0].size, this.size) && this[point.y][point.x] == c
+
+    fun Array<CharArray>.flood(start: SimplePoint, seen: MutableSet<SimplePoint>): Set<SimplePoint> {
+        val queue = ArrayDeque<SimplePoint>()
+        val region = mutableSetOf(start)
+        val charType = this[start.y][start.x]
+
+        queue.add(start)
+        seen.add(start)
+
+        while (queue.isNotEmpty()) {
+            val current = queue.removeFirst()
+            for (dir in directions) {
+                val neighbor = current + dir
+                if (!seen.contains(neighbor) && this.isSameChar(charType, neighbor)) {
+                    seen.add(neighbor)
+                    region.add(neighbor)
+                    queue.add(neighbor)
+                }
+            }
+        }
+
+        return region
+    }
+
+    fun Array<CharArray>.perimeter(region: Set<SimplePoint>): Int =
+        region.sumOf { point ->
+            directions.count { dir -> !isSameChar(this[point.y][point.x], point + dir) }
+        }
+
+    fun Array<CharArray>.corners(region: Set<SimplePoint>): Int {
+        var result = 0
+        for (point in region) {
+            for (hor in horizontal) {
+                for (vert in vertical) {
+                    val diagonal = point + hor + vert
+                    val horizontalNeighbor = point + hor
+                    val verticalNeighbor = point + vert
+                    val charType = this[point.y][point.x]
+
+                    if (!isSameChar(charType, horizontalNeighbor) && !isSameChar(charType, verticalNeighbor) ||
+                        (!isSameChar(charType, diagonal) &&
+                                isSameChar(charType, horizontalNeighbor) &&
+                                isSameChar(charType, verticalNeighbor))
+                    ) {
+                        result++
+                    }
+                }
+            }
+        }
+        return result
+    }
+
+    fun Array<CharArray>.makeRegions(): List<Set<SimplePoint>> {
+        val seen = mutableSetOf<SimplePoint>()
+        val regions = mutableListOf<Set<SimplePoint>>()
+
+        for (y in this.indices) {
+            for (x in this[y].indices) {
+                val point = SimplePoint(x, y)
+                if (!seen.contains(point)) {
+                    regions.add(flood(point, seen))
+                }
+            }
+        }
+        return regions
+    }
+
+    fun part1(input: List<String>): Long {
+        val data = parseInput(input)
+        return data.makeRegions().sumOf { region ->
+            val area = region.size
+            val perimeter = data.perimeter(region)
+            area.toLong() * perimeter
         }
     }
 
-    return Pair(area, perimeter)
+    fun part2(input: List<String>): Long {
+        val data = parseInput(input)
+        return data.makeRegions().sumOf { region ->
+            val area = region.size
+            val corners = data.corners(region)
+            area.toLong() * corners
+        }
+    }
+
+    val input = readInput("Day12") // Uses your input loading function
+    println("Part 1: ${part1(input)}")
+    println("Part 2: ${part2(input)}")
 }
+
+fun readInput(name: String) = Path("input.txt").readText().trim().lines()
