@@ -1,54 +1,64 @@
-import java.io.File
+// TODO
 
-data class ClawMachine(
-    val aX: Int, 
-    val aY: Int, 
-    val bX: Int, 
-    val bY: Int, 
-    val prizeX: Int, 
-    val prizeY: Int
-)
+import kotlin.io.path.Path
+import kotlin.io.path.readText
+
+data class ClawItem(val buttonA: LongPoint, val buttonB: LongPoint, val prize: LongPoint)
+
+data class LongPoint(val x: Long, val y: Long)
 
 fun main() {
-    val input = File("input.txt").readText().trimIndent()
 
-    val machines = parseInput(input)
+    val zero = LongPoint(0L, 0L)
 
-    val results = machines.map { machine ->
-        calculateMinTokens(machine) 
+    fun parseInput(input: List<String>): List<ClawItem> {
+        var i = 0
+        val result = mutableListOf<ClawItem>()
+        while (i < input.size) {
+            val a = input[i++].substringAfter("Button A: ").split(", ")
+            val buttonA = LongPoint(a[0].substringAfter("X").toLong(), a[1].substringAfter("Y").toLong())
+            val b = input[i++].substringAfter("Button B: ").split(", ")
+            val buttonB = LongPoint(b[0].substringAfter("X").toLong(), b[1].substringAfter("Y").toLong())
+            val p = input[i++].substringAfter("Prize: ").split(", ")
+            val prize = LongPoint(p[0].substringAfter("X=").toLong(), p[1].substringAfter("Y=").toLong())
+            result.add(ClawItem(buttonA, buttonB, prize))
+            i++
+        }
+        return result.toList()
     }
 
-    val solvableMachines = results.filterNotNull()
-    val totalCost = solvableMachines.sum()
+    fun determinant(a: LongPoint, b: LongPoint): Long {
+        return a.x * b.y - a.y * b.x
+    }
 
-    println("Total prizes won: ${solvableMachines.size}")
-    println("Minimum tokens required: $totalCost")
-}
+    fun LongPoint.mod(d: Long): LongPoint = LongPoint(this.x % d, this.y % d)
+    fun LongPoint.div(d: Long): LongPoint = LongPoint(this.x / d, this.y / d)
 
-fun parseInput(input: String): List<ClawMachine> {
-    val regex = Regex(
-        """Button A: X\+(\d+), Y\+(\d+)\s+Button B: X\+(\d+), Y\+(\d+)\s+Prize: X=(\d+), Y=(\d+)"""
-    )
-    return regex.findAll(input).map { match ->
-        val (aX, aY, bX, bY, prizeX, prizeY) = match.destructured
-        ClawMachine(aX.toInt(), aY.toInt(), bX.toInt(), bY.toInt(), prizeX.toInt(), prizeY.toInt())
-    }.toList()
-}
-
-fun calculateMinTokens(machine: ClawMachine, maxPresses: Int = 100): Int? {
-    val (aX, aY, bX, bY, prizeX, prizeY) = machine
-
-    var minTokens: Int? = null
-    for (a in 0..maxPresses) {
-        for (b in 0..maxPresses) {
-            val currentX = a * aX + b * bX
-            val currentY = a * aY + b * bY
-
-            if (currentX == prizeX && currentY == prizeY) {
-                val tokens = a * 3 + b * 1
-                minTokens = if (minTokens == null) tokens else minOf(minTokens, tokens)
-            }
+    fun ClawItem.tokens(prizeDist: Long): Long {
+        val px = prize.x + prizeDist
+        val py = prize.y + prizeDist
+        val mult = LongPoint(buttonB.y * px - buttonB.x * py, -buttonA.y * px + buttonA.x * py)
+        val d = determinant(buttonA, buttonB)
+        return if (mult.mod(d) == zero) {
+            val ab = mult.div(d)
+            3 * ab.x + 1 * ab.y
+        } else {
+            0L
         }
     }
-    return minTokens
+
+    fun part1(input: List<String>): Long {
+        return parseInput(input).asSequence().map { it.tokens(0L) }.sum()
+    }
+
+    fun part2(input: List<String>): Long {
+        return parseInput(input).asSequence().map { it.tokens(10_000_000_000_000L) }.sum()
+    }
+
+    val input = readInput("input")
+    println(part1(input))
+
+    println(part2(input))
 }
+
+fun readInput(name: String) = Path("$name.txt").readText().trim().lines()
