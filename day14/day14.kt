@@ -19,12 +19,10 @@ fun main() {
         }
     }
 
-    val result = countRobots(robots)
+    val result = countRobots(robots, maxX, maxY)
     println(result)
 
     val maxSeconds = maxX * maxY
-
-    println(maxSeconds)
     
     var bestTime = 0
     var bestSafetyFactor = Int.MAX_VALUE
@@ -39,7 +37,7 @@ fun main() {
         if (safetyFactor < bestSafetyFactor) {
             bestSafetyFactor = safetyFactor
             bestTime = i + 1
-            printGrid(p2robots, maxX, maxY)
+            // printGrid(p2robots, maxX, maxY)
         }
     }
 
@@ -66,32 +64,20 @@ fun moveRobot(robot: Robot, maxX: Int, maxY: Int) {
     robot.pY = (robot.pY + robot.vY).mod(maxY)
 }
 
-fun countRobots(robots: List<Robot>): Int {
-    val (maxX, maxY) = getMax()
-    
-    var count = 1
+fun countRobots(robots: List<Robot>, maxX: Int, maxY: Int): Int {
 
-    val grids = listOf(
-        listOf(Pair(0, maxX / 2 - 1), Pair(0, maxY / 2 - 1)),
-        listOf(Pair(maxX / 2 + 1, maxX), Pair(0, maxY / 2 - 1)),
-        listOf(Pair(0, maxX / 2 - 1), Pair(maxY / 2 + 1, maxY)),
-        listOf(Pair(maxX / 2 + 1, maxX), Pair(maxY / 2 + 1, maxY))
-    )
+    val quadrants = Array(4) { 0 }
 
-    for (grid in grids) {
-        val (startX, endX) = grid[0]
-        val (startY, endY) = grid[1]
-
-        var countInGrid = 0
-        for (robot in robots) {
-            if (robot.pX in startX..endX && robot.pY in startY..endY) {
-                countInGrid++
-            }
+    for (robot in robots) {
+        when {
+            robot.pX < maxX / 2 && robot.pY < maxY / 2 -> quadrants[0]++
+            robot.pX > maxX / 2 && robot.pY < maxY / 2 -> quadrants[1]++
+            robot.pX < maxX / 2 && robot.pY > maxY / 2 -> quadrants[2]++
+            robot.pX > maxX / 2 && robot.pY > maxY / 2 -> quadrants[3]++
         }
-        count *= countInGrid
     }
 
-    return count
+    return quadrants.filter { it > 0 }.reduce(Int::times)
 }
 
 fun calculateSafetyFactor(robots: List<Robot>, maxX: Int, maxY: Int): Int {
