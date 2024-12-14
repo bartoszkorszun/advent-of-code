@@ -10,29 +10,44 @@ data class Robot(
 fun main() {
     val input = File("input.txt").readText()
     val robots = parseInput(input)
-    val maxSeconds = 10403
     val (maxX, maxY) = getMax()
+    val p2robots = robots.map { it.copy() }
 
-    var bestTime = 0
-    var bestSafetyFactor = Int.MAX_VALUE
-
-    for (time in 0 until maxSeconds) {
-        // Move robots
+    repeat(100) {
         for (robot in robots) {
             moveRobot(robot, maxX, maxY)
         }
+    }
 
-        // Calculate safety factor
-        val safetyFactor = calculateSafetyFactor(robots, maxX, maxY)
+    val result = countRobots(robots)
+    println(result)
 
-        // Check for lowest safety factor (potential clustering)
+    val maxSeconds = maxX * maxY
+
+    println(maxSeconds)
+    
+    var bestTime = 0
+    var bestSafetyFactor = Int.MAX_VALUE
+
+    for (i in 0 until maxSeconds) {
+        for (robot in p2robots) {
+            moveRobot(robot, maxX, maxY)
+        }
+
+        val safetyFactor = calculateSafetyFactor(p2robots, maxX, maxY)
+
         if (safetyFactor < bestSafetyFactor) {
             bestSafetyFactor = safetyFactor
-            bestTime = time + 1
+            bestTime = i + 1
+            printGrid(p2robots, maxX, maxY)
         }
     }
 
-    println("Lowest safety factor occurred at second: $bestTime with safety factor: $bestSafetyFactor")
+    println(bestTime)
+}
+
+fun getMax(): Pair<Int, Int> {
+    return Pair(101,103)
 }
 
 fun parseInput(input: String): List<Robot> {
@@ -51,6 +66,34 @@ fun moveRobot(robot: Robot, maxX: Int, maxY: Int) {
     robot.pY = (robot.pY + robot.vY).mod(maxY)
 }
 
+fun countRobots(robots: List<Robot>): Int {
+    val (maxX, maxY) = getMax()
+    
+    var count = 1
+
+    val grids = listOf(
+        listOf(Pair(0, maxX / 2 - 1), Pair(0, maxY / 2 - 1)),
+        listOf(Pair(maxX / 2 + 1, maxX), Pair(0, maxY / 2 - 1)),
+        listOf(Pair(0, maxX / 2 - 1), Pair(maxY / 2 + 1, maxY)),
+        listOf(Pair(maxX / 2 + 1, maxX), Pair(maxY / 2 + 1, maxY))
+    )
+
+    for (grid in grids) {
+        val (startX, endX) = grid[0]
+        val (startY, endY) = grid[1]
+
+        var countInGrid = 0
+        for (robot in robots) {
+            if (robot.pX in startX..endX && robot.pY in startY..endY) {
+                countInGrid++
+            }
+        }
+        count *= countInGrid
+    }
+
+    return count
+}
+
 fun calculateSafetyFactor(robots: List<Robot>, maxX: Int, maxY: Int): Int {
     val quadrants = Array(4) { 0 }
 
@@ -66,6 +109,12 @@ fun calculateSafetyFactor(robots: List<Robot>, maxX: Int, maxY: Int): Int {
     return quadrants.filter { it > 0 }.reduce(Int::times)
 }
 
-fun getMax(): Pair<Int, Int> {
-    return Pair(101, 103)
+fun printGrid(robots: List<Robot>, maxX: Int, maxY: Int) {
+    val grid = Array(maxY) { CharArray(maxX) { '.' } }
+
+    for (robot in robots) {
+        grid[robot.pY][robot.pX] = '#'
+    }
+
+    grid.forEach { println(it.joinToString("")) }
 }
