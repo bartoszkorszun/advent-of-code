@@ -5,7 +5,7 @@ This program simulates a malfunctioning robot in a lanternfish-operated warehous
 ## Part 1 
 
 The map consists of 
-- **#** - walls
+- # - walls
 - 'O' - boxes
 - '@' - robot
 - '.' - empty spot
