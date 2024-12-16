@@ -5,15 +5,15 @@ This program simulates a malfunctioning robot in a lanternfish-operated warehous
 ## Part 1 
 
 The map consists of 
-- # - walls
-- 'O' - boxes
-- '@' - robot
-- '.' - empty spot
+- **#** - walls
+- **O** - boxes
+- **@** - robot
+- **.** - empty spot
 
 ## Part 2
 
 The goal is the same but map changes as follows:
-- '#' - changes to '##'
-- 'O' - changes to '[]'
-- '@' - changes to '@.'
-- '.' - changes to '..'
+- **#** - changes to '##'
+- **O** - changes to '[]'
+- **@** - changes to '@.'
+- **.** - changes to '..'
