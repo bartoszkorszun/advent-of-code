@@ -18,9 +18,7 @@ fun main() {
     }
 
     println("sum of GPS coordinates part 1: ${sumOfCoordinates(map)}")
-
-    var i = 0
-    println(newMap.joinToString("\n") { it.joinToString("") })
+    printMap(newMap)
     for (instruction in instructions) {
         for (c in instruction) {
             val boxCords = mutableListOf<Pair<Pair<Int, Int>, Int>>()
@@ -31,16 +29,11 @@ fun main() {
                 '<' -> moveRobot2(newMap, robot, boxCords, 0, -1)
                 '>' -> moveRobot2(newMap, robot, boxCords, 0, 1)
             }
-            i++
-            if (i == 4) {
-                printMap(newMap)
-                break
-            }
         }
-        break
     }
 
-    println(newMap.joinToString("\n") { it.joinToString("") })
+    printMap(newMap)
+    println("sum of GPS coordinates part 2: ${sumOfCoordinates(newMap)}")
 }
 
 fun readMapAndInstructions(fileName: String): Pair<MutableList<MutableList<Char>>, List<CharArray>> {
@@ -100,9 +93,6 @@ fun moveRobot2(map: MutableList<MutableList<Char>>, robot: Pair<Int, Int>, boxCo
         } 
         if (dx != 0) {
             if (isSafeToMoveVertically(map, boxCords, newX, newY, dx, dy)) {
-                println("safe to move vertically")
-                println("${boxCords.joinToString(", ") { it.toString() }}")
-
                 for (box in boxCords) {
                     val (y1, y2) = box.first
                     val x = box.second
@@ -175,19 +165,17 @@ fun isSafeToMoveVertically(map: MutableList<MutableList<Char>>, boxCords: Mutabl
 }
 
 fun moveBigBoxH(map: MutableList<MutableList<Char>>, x: Int, y: Int, newY: Int) {
-    println("moving big box $x $y $newY")
     if (y < newY) {
-        for (i in newY..y) {
+        for (i in newY - 1 downTo y) {
             val tmp = map[x][i]
             map[x][i] = map[x][i+1]
             map[x][i+1] = tmp
-            println("swapping $i ${i-1}")
         }
     } else {
         for (i in newY..y) {
             val tmp = map[x][i]
-            map[x][i] = map[x][i-1]
-            map[x][i-1] = tmp
+            map[x][i] = map[x][i+1]
+            map[x][i+1] = tmp
         }
     }
 }
@@ -225,7 +213,7 @@ fun sumOfCoordinates(map: MutableList<MutableList<Char>>): Int {
     var sum = 0
     for (i in map.indices) {
         for (j in map[i].indices) {
-            if (map[i][j] == 'O') {
+            if (map[i][j] == 'O' || map[i][j] == '[') {
                 sum += i * 100 + j
             }
         }
