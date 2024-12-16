@@ -19,15 +19,11 @@ fun main() {
 
     println("sum of GPS coordinates part 1: ${sumOfCoordinates(map)}")
 
-    val boxCords = findBoxCords(newMap)
     var i = 0
     println(newMap.joinToString("\n") { it.joinToString("") })
     for (instruction in instructions) {
         for (c in instruction) {
-            i++
-            if (i == 6) {
-                break
-            }
+            val boxCords = mutableListOf<Pair<Pair<Int, Int>, Int>>()
             val robot = locateRobot(newMap)
             when (c) {
                 '^' -> moveRobot2(newMap, robot, boxCords, -1, 0)
@@ -35,7 +31,13 @@ fun main() {
                 '<' -> moveRobot2(newMap, robot, boxCords, 0, -1)
                 '>' -> moveRobot2(newMap, robot, boxCords, 0, 1)
             }
+            i++
+            if (i == 4) {
+                printMap(newMap)
+                break
+            }
         }
+        break
     }
 
     println(newMap.joinToString("\n") { it.joinToString("") })
@@ -97,7 +99,20 @@ fun moveRobot2(map: MutableList<MutableList<Char>>, robot: Pair<Int, Int>, boxCo
             }
         } 
         if (dx != 0) {
-            if (!isSafeToMoveVertically(map, boxCords, newX, newY, dx, dy)) {
+            if (isSafeToMoveVertically(map, boxCords, newX, newY, dx, dy)) {
+                println("safe to move vertically")
+                println("${boxCords.joinToString(", ") { it.toString() }}")
+
+                for (box in boxCords) {
+                    val (y1, y2) = box.first
+                    val x = box.second
+                    
+                    map[x + dx][y1] = '['
+                    map[x + dx][y2] = ']'
+                    map[x][y1] = '.'
+                    map[x][y2] = '.'
+                }
+            } else {
                 return
             }
         }
@@ -120,24 +135,53 @@ fun isSafeToMoveHorizontally(map: MutableList<MutableList<Char>>, x: Int, y: Int
         }
         newY += dy
     }
-    // println("newY: $newY, y: $y, dy: $dy, ${map[x].size}")
     moveBigBoxH(map, x, y, newY)
 
     return true
 }
 
 fun isSafeToMoveVertically(map: MutableList<MutableList<Char>>, boxCords: MutableList<Pair<Pair<Int, Int>, Int>>, x: Int, y: Int, dx: Int, dy: Int): Boolean {
-    
+
+    when(map[x][y]) {
+        '[' -> {
+            if (map[x + dx][y] == '[' && isSafeToMoveVertically(map, boxCords, x + dx, y, dx, dy)) {
+                boxCords.add(Pair(Pair(y, y + 1), x))
+                return true
+            }
+            if (isSafeToMoveVertically(map, boxCords, x + dx, y, dx, dy) && isSafeToMoveVertically(map, boxCords, x + dx, y + 1, dx, dy)) {
+                boxCords.add(Pair(Pair(y, y + 1), x))
+                return true
+            }
+        }
+        ']' -> {
+            if (map[x + dx][y] == ']' && isSafeToMoveVertically(map, boxCords, x + dx, y, dx, dy)) {
+                boxCords.add(Pair(Pair(y - 1, y), x))
+                return true
+            }
+            if (isSafeToMoveVertically(map, boxCords, x + dx, y, dx, dy) && isSafeToMoveVertically(map, boxCords, x + dx, y - 1, dx, dy)) {
+                boxCords.add(Pair(Pair(y - 1, y), x))
+                return true
+            }
+        }
+        '#' -> {
+            return false
+        }
+        '.' -> {
+            return true
+        }
+    }
 
     return false
 }
 
 fun moveBigBoxH(map: MutableList<MutableList<Char>>, x: Int, y: Int, newY: Int) {
+    println("moving big box $x $y $newY")
     if (y < newY) {
-        for (i in y..newY) {
+        for (i in newY..y) {
             val tmp = map[x][i]
             map[x][i] = map[x][i+1]
             map[x][i+1] = tmp
+            println("swapping $i ${i-1}")
         }
     } else {
         for (i in newY..y) {
@@ -219,22 +263,8 @@ fun changeMap(map: MutableList<MutableList<Char>>): MutableList<MutableList<Char
     return newMap
 }
 
-fun findBoxCords(map: MutableList<MutableList<Char>>): MutableList<Pair<Pair<Int, Int>, Int>> {
-    val boxCords = mutableListOf<Pair<Pair<Int, Int>, Int>>()
-    var i = 0
-    var j = 0
-
-    while (i < map.size) {
-        j = 0
-        while (j < map[i].size) {
-            if (map[i][j] == '[') {
-                boxCords.add(Pair(Pair(j, j+1), i))
-                j++
-            }
-            j++
-        }
-        i++
+fun printMap(map: MutableList<MutableList<Char>>) {
+    for (i in map.indices) {
+        println(map[i].joinToString(""))
     }
-
-    return boxCords
 }
