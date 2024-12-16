@@ -1,7 +1,7 @@
 import java.io.File
 
 fun main() {
-    val fileName = "test.txt"
+    val fileName = "input.txt"
     val (map, instructions) = readMapAndInstructions(fileName)
     var newMap = changeMap(map)
     
@@ -21,7 +21,7 @@ fun main() {
     printMap(newMap)
     for (instruction in instructions) {
         for (c in instruction) {
-            val boxCords = mutableListOf<Pair<Pair<Int, Int>, Int>>()
+            val boxCords = mutableSetOf<Pair<Pair<Int, Int>, Int>>()
             val robot = locateRobot(newMap)
             when (c) {
                 '^' -> moveRobot2(newMap, robot, boxCords, -1, 0)
@@ -77,7 +77,7 @@ fun moveRobot1(map: MutableList<MutableList<Char>>, robot: Pair<Int, Int>, dx: I
     map[newX][newY] = '@'
 }
 
-fun moveRobot2(map: MutableList<MutableList<Char>>, robot: Pair<Int, Int>, boxCords: MutableList<Pair<Pair<Int, Int>, Int>>, dx: Int, dy: Int) {
+fun moveRobot2(map: MutableList<MutableList<Char>>, robot: Pair<Int, Int>, boxCords: MutableSet<Pair<Pair<Int, Int>, Int>>, dx: Int, dy: Int) {
     val (x, y) = robot
     val (newX, newY) = Pair(x + dx, y + dy)
 
@@ -130,7 +130,7 @@ fun isSafeToMoveHorizontally(map: MutableList<MutableList<Char>>, x: Int, y: Int
     return true
 }
 
-fun isSafeToMoveVertically(map: MutableList<MutableList<Char>>, boxCords: MutableList<Pair<Pair<Int, Int>, Int>>, x: Int, y: Int, dx: Int, dy: Int): Boolean {
+fun isSafeToMoveVertically(map: MutableList<MutableList<Char>>, boxCords: MutableSet<Pair<Pair<Int, Int>, Int>>, x: Int, y: Int, dx: Int, dy: Int): Boolean {
 
     when(map[x][y]) {
         '[' -> {
