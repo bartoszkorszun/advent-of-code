@@ -39,6 +39,4 @@ fun parseInput(input: String): List<Box> {
         val (x, y, z) = it.destructured
         Box(x.toInt(), y.toInt(), z.toInt())
     }.toList()
-
-    println("Error parsing input")
 }
