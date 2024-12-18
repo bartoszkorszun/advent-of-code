@@ -1,4 +1,4 @@
-# Day 1 - Not Quite Lisp
+# Day 1: Not Quite Lisp
 
 Santa is navigating a tall apartment building to deliver presents but needs help determining his destination floor. Using a series of instructions (`(` for up and `)` for down), calculate the final floor he reaches and identify when he first enters the basement (floor `-1`).
 
