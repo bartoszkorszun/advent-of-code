@@ -5,6 +5,7 @@ fun main() {
     input.toCharArray()
 
     var floor = 0
+    var position = 1
     for (c in input) {
         if (c.code == 40) {
             floor++
@@ -12,6 +13,11 @@ fun main() {
         if (c.code == 41) {
             floor--
         }
+        if (floor == -1) {
+            println(position)
+            break
+        }
+        position++
     }
 
     println(floor)
