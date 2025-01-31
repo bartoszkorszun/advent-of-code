@@ -1,10 +1,24 @@
 import java.io.File
 
-fun part2(input: String): Int {
-    return 0
+fun isNice2(s: String): Boolean {
+    val hasPair = (0 until s.length - 2).any { i ->
+        val pair = s.substring(i, i + 2)
+        s.indexOf(pair, i + 2) != -1
+    }
+
+    val hasRepeat = (0 until s.length - 2).any { i ->
+        s[i] == s[i + 2]
+    }
+
+    return hasPair && hasRepeat
 }
 
-fun isNice(s: String): Boolean {
+fun part2(input: String): Int {
+    val lines = input.lines()
+    return lines.count { isNice2(it) }
+}
+
+fun isNice1(s: String): Boolean {
     val vowels = "aeiou".toSet()
     val forbidden = setOf("ab", "cd", "pq", "xy")
     val doubles = ('a'..'z').map { it.toString() + it.toString() }.toSet()
@@ -18,7 +32,7 @@ fun isNice(s: String): Boolean {
 
 fun part1(input: String): Int {
     val lines = input.lines()
-    return lines.count { isNice(it) }
+    return lines.count { isNice1(it) }
 }
 
 fun main() {
