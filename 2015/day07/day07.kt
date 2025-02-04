@@ -38,7 +38,10 @@ fun evaluateSignal(wire: String, instructions: List<Instruction>, signals: Mutab
 }
 
 fun part2(input: String): Int {
-    return 0
+    val instructions = parseInstructions(input)
+    val signals = mutableMapOf<String, Int>()
+    signals["b"] = part1(input) 
+    return evaluateSignal("a", instructions, signals)
 }
 
 fun part1(input: String): Int {
