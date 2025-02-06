@@ -1,7 +1,17 @@
 import java.io.File
 
 fun part2(input: String): Int {
-    return 0
+    val lines = input.lines()
+    var totalCode = 0
+    var totalMemory = 0
+    lines.forEach {
+        totalCode += it.length
+        totalMemory += it
+        .replace("\"", "aa")
+        .replace("\\", "aa")
+        .length + 2
+    }
+    return totalMemory - totalCode
 }
 
 fun part1(input: String): Int {
