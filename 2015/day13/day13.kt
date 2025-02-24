@@ -42,7 +42,18 @@ fun parseInput(input: String): List<Happiness> {
 }
 
 fun part2(input: String): Int {
-    return 0
+    val happinessChanges = parseInput(input)
+    val happinessMap = happinessChanges.associate { Pair(it.person1, it.person2) to it.value }.toMutableMap()
+    val people = happinessChanges.flatMap { listOf(it.person1, it.person2) }.distinct().toMutableList()
+
+    val me = "Me"
+    people.forEach { person ->
+        happinessMap[Pair(me, person)] = 0
+        happinessMap[Pair(person, me)] = 0
+    }
+    people.add(me)
+
+    return findOptimalHappiness(people, happinessMap)
 }   
 
 fun part1(input: String): Int {
