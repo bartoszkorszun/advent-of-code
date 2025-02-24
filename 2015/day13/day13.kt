@@ -1,11 +1,55 @@
 import java.io.File
 
+data class Happiness(
+    val person1: String, 
+    val person2: String, 
+    val value: Int
+)
+
+fun findOptimalHappiness(people: List<String>, happinessMap: Map<Pair<String, String>, Int>): Int {
+    return people.permutations().maxOf { calculateHappiness(it, happinessMap) }
+}
+
+fun <T> List<T>.permutations(): List<List<T>> {
+    if (size == 1) return listOf(this)
+    val perms = mutableListOf<List<T>>()
+    val sub = this[0]
+    for (perm in (this - sub).permutations())
+        for (i in perm.indices + 1)
+            perms.add(perm.toMutableList().apply { add(i, sub) })
+    return perms
+}
+
+fun calculateHappiness(arrangement: List<String>, happinessMap: Map<Pair<String, String>, Int>): Int {
+    var totalHappiness = 0
+    for (i in arrangement.indices) {
+        val person1 = arrangement[i]
+        val person2 = arrangement[(i + 1) % arrangement.size]
+        totalHappiness += happinessMap[Pair(person1, person2)] ?: 0
+        totalHappiness += happinessMap[Pair(person2, person1)] ?: 0
+    }
+    return totalHappiness
+}
+
+fun parseInput(input: String): List<Happiness> {
+    val regex = Regex("""(\w+) would (gain|lose) (\d+) happiness units by sitting next to (\w+).""")
+    return input.lines().mapNotNull { line ->
+        regex.matchEntire(line)?.destructured?.let { (person1, gainOrLose, units, person2) ->
+            val value = if (gainOrLose == "gain") units.toInt() else -units.toInt()
+            Happiness(person1, person2, value)
+        }
+    }
+}
+
 fun part2(input: String): Int {
     return 0
 }   
 
 fun part1(input: String): Int {
-    return 0
+    val happinessChanges = parseInput(input)
+    val happinessMap = happinessChanges.associate { Pair(it.person1, it.person2) to it.value }
+    val people = happinessChanges.flatMap { listOf(it.person1, it.person2) }.distinct()
+    return findOptimalHappiness(people, happinessMap)
 }
 
 fun main() {
