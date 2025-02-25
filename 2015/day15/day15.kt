@@ -66,7 +66,7 @@ fun part1(ingredients: List<Ingredient>): Int {
 }
 
 fun main() {
-    val input = File("test.txt").readText().trim()
+    val input = File("input.txt").readText().trim()
     val ingredients = parseInput(input)
 
     val p1 = part1(ingredients)
