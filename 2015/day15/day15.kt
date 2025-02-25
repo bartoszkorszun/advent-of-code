@@ -56,8 +56,34 @@ fun calculateScore(ingredients: List<Ingredient>, amounts: List<Int>): Int {
     return capacity * durability * flavor * texture
 }
 
+fun calculateScoreWithCalories(ingredients: List<Ingredient>, amounts: List<Int>): Int {
+    var capacity = 0
+    var durability = 0
+    var flavor = 0
+    var texture = 0
+    var calories = 0
+
+    for (i in ingredients.indices) {
+        capacity += ingredients[i].capacity * amounts[i]
+        durability += ingredients[i].durability * amounts[i]
+        flavor += ingredients[i].flavor * amounts[i]
+        texture += ingredients[i].texture * amounts[i]
+        calories += ingredients[i].calories * amounts[i]
+    }
+
+    if (calories != 500) return 0
+
+    capacity = maxOf(0, capacity)
+    durability = maxOf(0, durability)
+    flavor = maxOf(0, flavor)
+    texture = maxOf(0, texture)
+
+    return capacity * durability * flavor * texture
+}
+
 fun part2(ingredients: List<Ingredient>): Int {
-    return 0
+    val combinations = generateCombinations(100, ingredients.size)
+    return combinations.maxOf { calculateScoreWithCalories(ingredients, it) }
 }   
 
 fun part1(ingredients: List<Ingredient>): Int {
