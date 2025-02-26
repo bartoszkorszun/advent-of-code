@@ -35,8 +35,19 @@ fun parseInput(input: String, sCriteria: String): Pair<List<Aunt>, Criteria> {
     return Pair(aunts, criteria)
 }
 
-fun part2(input: List<Aunt>, criteria: Criteria): Int {
-    return 0
+fun part2(aunts: List<Aunt>, criteria: Criteria): Int {
+    aunts.forEach { aunt ->
+        val properties = aunt.properties
+        val match = properties.all { (name, value) ->
+            when (name) {
+                "cats", "trees" -> criteria.properties[name]?.let { it < value } ?: true
+                "pomeranians", "goldfish" -> criteria.properties[name]?.let { it > value } ?: true
+                else -> criteria.properties[name]?.let { it == value } ?: true
+            }
+        }
+        if (match) return aunt.number
+    }
+    return -1
 }   
 
 fun part1(aunts: List<Aunt>, criteria: Criteria): Int {
