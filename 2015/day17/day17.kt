@@ -1,10 +1,6 @@
 import java.io.File
 
-fun part2(containers: List<Int>, liters: Int): Int {
-    return 0
-}   
-
-fun part1(containers: List<Int>, liters: Int): Int {
+fun findValidCombinations(containers: List<Int>, liters: Int): List<List<Int>> {
     val result = mutableListOf<List<Int>>()
 
     fun backtrack(start: Int, sum: Int, combination: MutableList<Int>) {
@@ -24,7 +20,17 @@ fun part1(containers: List<Int>, liters: Int): Int {
     }
 
     backtrack(0, 0, mutableListOf())
-    return result.size
+    return result
+}
+
+fun part2(containers: List<Int>, liters: Int): Int {
+    val validCombinations = findValidCombinations(containers, liters)
+    val minContainers = validCombinations.minOf { it.size }
+    return validCombinations.count { it.size == minContainers }
+}   
+
+fun part1(containers: List<Int>, liters: Int): Int {
+    return findValidCombinations(containers, liters).size
 }
 
 fun main() {
