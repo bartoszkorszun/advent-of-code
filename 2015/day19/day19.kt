@@ -19,8 +19,33 @@ fun parseInput(input: String): Pair<List<Replacement>, String> {
     return Pair(replacementList, molecule)
 }
 
-fun part2(replacements: List<Replacement>, molecule: String): Int {
-    return 0
+fun part2(replacements: List<Replacement>, target: String): Int {
+    val sortedReplacements = replacements.sortedByDescending { it.to.length }
+    
+    var molecule = target
+    var steps = 0
+    
+    while (molecule != "e") {
+        val initialMolecule = molecule
+        
+        for (replacement in sortedReplacements) {
+            val index = molecule.indexOf(replacement.to)
+            if (index >= 0) {
+                molecule = molecule.substring(0, index) + 
+                           replacement.from + 
+                           molecule.substring(index + replacement.to.length)
+                steps++
+                break
+            }
+        }
+        
+        if (initialMolecule == molecule) {
+            println("Got stuck at: $molecule")
+            return -1
+        }
+    }
+    
+    return steps
 }   
 
 fun part1(replacements: List<Replacement>, molecule: String): Int {
