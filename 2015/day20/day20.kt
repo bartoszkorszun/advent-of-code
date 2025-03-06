@@ -6,8 +6,16 @@ fun part2(input: String): Int {
 
 fun part1(input: String): Int {
     val target = input.toInt()
-    println(target)
-    return 0
+    val houses = IntArray(target / 10)
+    for (i in 1 until houses.size) {
+        for (j in i until houses.size step i) {
+            houses[j] += i * 10
+            if (houses[i] >= target) {
+                return i
+            }
+        }
+    }
+    return -1
 }
 
 fun main() {
