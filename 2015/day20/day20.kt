@@ -1,7 +1,19 @@
 import java.io.File
 
 fun part2(input: String): Int {
-    return 0
+    val target = input.toInt()
+    val houses = IntArray(target / 10)
+    for (i in 1 until houses.size) {
+        for (j in i until houses.size step i) {
+            if (j <= i * 50) {
+                houses[j] += i * 11
+                if (houses[i] >= target) {
+                    return i
+                }
+            }
+        }
+    }
+    return -1
 }   
 
 fun part1(input: String): Int {
