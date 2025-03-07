@@ -1,6 +1,6 @@
 # Day 20: Infinite Elves and Infinite Houses
 
-**Goal**  
+## Goal
 
 Determine the **lowest house number** that receives at least a given number of presents, based on different delivery rules.  
 
