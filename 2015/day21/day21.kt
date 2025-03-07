@@ -1,7 +1,35 @@
 import java.io.File
 
 fun part2(boss: Boss, shop: Shop): Int {
-    return 0
+    var maxCost = 0
+    val playerHP = 100
+
+    for (weapon in shop.weapons) {
+        loseNoArmor(weapon, boss, playerHP, maxCost)?.let { maxCost = it }
+
+        for (armor in shop.armors) {
+            loseNoRings(weapon, armor, boss, playerHP, maxCost)?.let { maxCost = it }
+
+            for (ring1 in shop.rings) {
+                loseOneRing(weapon, armor, ring1, boss, playerHP, maxCost)?.let { maxCost = it }
+
+                for (ring2 in shop.rings) {
+                    if (ring1 == ring2) continue
+                    loseTwoRings(weapon, armor, ring1, ring2, boss, playerHP, maxCost)?.let { maxCost = it }
+                }
+            }
+        }
+
+        for (ring1 in shop.rings) {
+            loseOneRingNoArmor(weapon, ring1, boss, playerHP, maxCost)?.let { maxCost = it }
+
+            for (ring2 in shop.rings) {
+                if (ring1 == ring2) continue
+                loseTwoRingsNoArmor(weapon, ring1, ring2, boss, playerHP, maxCost)?.let { maxCost = it }
+            }
+        }   
+    }
+    return maxCost
 }   
 
 fun part1(boss: Boss, shop: Shop): Int {

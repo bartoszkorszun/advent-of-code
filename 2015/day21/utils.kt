@@ -1,3 +1,4 @@
+// PARSE FUNCTIONS
 fun parseBoss(bossInput: String): Boss {
     val lines = bossInput.lines()
     val hp = lines[0].split(": ")[1].toInt()
@@ -46,6 +47,7 @@ fun parseShop(shopInput: String): Shop {
     return Shop(weapons, armors, rings)
 }
 
+// PART 1 FUNCTIONS
 fun tryNoArmor(
     weapon: Weapon,
     boss: Boss,
@@ -205,4 +207,146 @@ fun simulateFight(
         currentPlayerHP -= bossAttack
         if (currentPlayerHP <= 0) return false
     }
+}
+
+// PART 2 FUNCTIONS
+fun loseNoArmor(
+    weapon: Weapon, 
+    boss: Boss, 
+    playerHP: Int, 
+    currentMaxCost: Int
+): Int? {
+    val cost = weapon.cost
+    if (cost <= currentMaxCost) return null
+    
+    val playerDamage = weapon.damage
+    val playerArmor = weapon.armor
+    
+    return if (
+        !simulateFight(
+            playerHP, 
+            playerDamage, 
+            playerArmor, 
+            boss
+        )
+    ) cost else null
+}
+
+fun loseNoRings(
+    weapon: Weapon,
+    armor: Armor, 
+    boss: Boss, 
+    playerHP: Int, 
+    currentMaxCost: Int
+): Int? {
+    val cost = weapon.cost + armor.cost
+    if (cost <= currentMaxCost) return null
+    
+    val playerDamage = weapon.damage + armor.damage
+    val playerArmor = weapon.armor + armor.armor
+    
+    return if (
+        !simulateFight(
+            playerHP, 
+            playerDamage, 
+            playerArmor, 
+            boss
+        )
+    ) cost else null
+}
+
+fun loseOneRing(
+    weapon: Weapon, 
+    armor: Armor, 
+    ring: Ring, 
+    boss: Boss, 
+    playerHP: Int, 
+    currentMaxCost: Int
+): Int? {
+    val cost = weapon.cost + armor.cost + ring.cost
+    if (cost <= currentMaxCost) return null
+    
+    val playerDamage = weapon.damage + armor.damage + ring.damage
+    val playerArmor = weapon.armor + armor.armor + ring.armor
+    
+    return if (
+        !simulateFight(
+            playerHP, 
+            playerDamage, 
+            playerArmor, 
+            boss
+        )
+    ) cost else null
+}
+
+fun loseTwoRings(
+    weapon: Weapon, 
+    armor: Armor, 
+    ring1: Ring, 
+    ring2: Ring, 
+    boss: Boss, 
+    playerHP: Int, 
+    currentMaxCost: Int
+): Int? {
+    val cost = weapon.cost + armor.cost + ring1.cost + ring2.cost
+    if (cost <= currentMaxCost) return null
+    
+    val playerDamage = weapon.damage + armor.damage + ring1.damage + ring2.damage
+    val playerArmor = weapon.armor + armor.armor + ring1.armor + ring2.armor
+    
+    return if (
+        !simulateFight(
+            playerHP, 
+            playerDamage, 
+            playerArmor, 
+            boss
+        )
+    ) cost else null
+}
+
+fun loseOneRingNoArmor(
+    weapon: Weapon, 
+    ring: Ring, 
+    boss: Boss, 
+    playerHP: Int, 
+    currentMaxCost: Int
+): Int? {
+    val cost = weapon.cost + ring.cost
+    if (cost <= currentMaxCost) return null
+    
+    val playerDamage = weapon.damage + ring.damage
+    val playerArmor = weapon.armor + ring.armor
+    
+    return if (
+        !simulateFight(
+            playerHP, 
+            playerDamage, 
+            playerArmor, 
+            boss
+        )
+    ) cost else null
+}
+
+fun loseTwoRingsNoArmor(
+    weapon: Weapon, 
+    ring1: Ring, 
+    ring2: Ring, 
+    boss: Boss, 
+    playerHP: Int, 
+    currentMaxCost: Int
+): Int? {
+    val cost = weapon.cost + ring1.cost + ring2.cost
+    if (cost <= currentMaxCost) return null
+    
+    val playerDamage = weapon.damage + ring1.damage + ring2.damage
+    val playerArmor = weapon.armor + ring1.armor + ring2.armor
+    
+    return if (
+        !simulateFight(
+            playerHP, 
+            playerDamage, 
+            playerArmor, 
+            boss
+        )
+    ) cost else null
 }
