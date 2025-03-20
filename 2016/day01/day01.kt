@@ -5,7 +5,51 @@ enum class Direction {
 }
 
 fun part2(directions: List<String>): Int {
-    return 0
+    var x = 0
+    var y = 0
+    var dir = Direction.NORTH
+
+    val visited = mutableSetOf<Pair<Int, Int>>()
+    visited.add(Pair(x, y))
+    
+    directions.forEach {
+        val turn = it[0]
+        val steps = it.substring(1).toInt()
+        
+        if (turn == 'R') {
+            dir = when (dir) {
+                Direction.NORTH -> Direction.EAST
+                Direction.EAST -> Direction.SOUTH
+                Direction.SOUTH -> Direction.WEST
+                Direction.WEST -> Direction.NORTH
+            }
+        } else {
+            dir = when (dir) {
+                Direction.NORTH -> Direction.WEST
+                Direction.WEST -> Direction.SOUTH
+                Direction.SOUTH -> Direction.EAST
+                Direction.EAST -> Direction.NORTH
+            }
+        }
+        
+        for (i in 1..steps) {
+            when (dir) {
+                Direction.NORTH -> y++
+                Direction.SOUTH -> y--
+                Direction.EAST -> x++
+                Direction.WEST -> x--
+            }
+            
+            // Check if we've visited this location before
+            val currentPos = Pair(x, y)
+            if (visited.contains(currentPos)) {
+                return Math.abs(x) + Math.abs(y)
+            }
+            
+            visited.add(currentPos)
+        }
+    }
+    return -1
 }   
 
 fun part1(directions: List<String>): Int {
