@@ -2,7 +2,28 @@ import java.io.File
 import java.security.MessageDigest
 
 fun part2(input: String): String {
-    return ""
+    val password = CharArray(8) { '_' }
+    var index = 0
+    var charsFound = 0
+    
+    val md5 = MessageDigest.getInstance("MD5")
+    
+    while (charsFound < 8) {
+        val hash = md5.digest("$input$index".toByteArray())
+        val hashHex = hash.joinToString("") { "%02x".format(it) }
+        
+        if (hashHex.startsWith("00000")) {
+            val position = hashHex[5].toString().toIntOrNull()
+            if (position != null && position in 0..7 && password[position] == '_') {
+                password[position] = hashHex[6]
+                charsFound++
+            }
+        }
+        
+        index++
+    }
+    
+    return password.joinToString("")
 }   
 
 fun part1(input: String): String {
