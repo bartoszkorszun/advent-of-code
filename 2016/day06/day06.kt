@@ -5,7 +5,16 @@ fun parseInput(input: String): Array<CharArray> {
 }
 
 fun part2(grid: Array<CharArray>): String {
-    return ""
+    val message = StringBuilder()
+    for (i in grid[0].indices) {
+        val charCount = mutableMapOf<Char, Int>()
+        for (j in grid.indices) {
+            val char = grid[j][i]
+            charCount[char] = charCount.getOrDefault(char, 0) + 1
+        }
+        message.append(charCount.minByOrNull { it.value }?.key ?: ' ')
+    }
+    return message.toString()
 }   
 
 fun part1(grid: Array<CharArray>): String {
