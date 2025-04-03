@@ -25,11 +25,13 @@ fun rotateColumn(grid: Array<IntArray>, column: Int, amount: Int) {
     }
 }
 
-fun part2(grid: Array<IntArray>, instructions: List<Instruction>): Int {
-    return 0
+fun part2(grid: Array<IntArray>) {
+    for (row in grid) {
+        println(row.joinToString("") { if (it == 1) "#" else "." })
+    }
 }   
 
-fun part1(grid: Array<IntArray>, instructions: List<Instruction>): Int {
+fun part1(grid: Array<IntArray>, instructions: List<Instruction>): Pair<Int, Array<IntArray>> {
     for (instruction in instructions) {
         when (instruction) {
             is Instruction.Rect -> drawRect(grid, instruction.width, instruction.height)
@@ -37,7 +39,8 @@ fun part1(grid: Array<IntArray>, instructions: List<Instruction>): Int {
             is Instruction.RotateColumn -> rotateColumn(grid, instruction.column, instruction.amount)
         }
     }
-    return grid.sumOf { row -> row.count { it == 1 } }
+    val result = grid.sumOf { row -> row.count { it == 1 } }
+    return Pair(result, grid)
 }
 
 fun main() {
@@ -46,9 +49,8 @@ fun main() {
 
     val grid = Array(6) { IntArray(50) { 0 } }
 
-    val p2 = part2(grid, instructions)
     val p1 = part1(grid, instructions)
 
-    println("Part 1: $p1")   
-    println("Part 2: $p2")
+    println("Part 1: ${p1.first}")   
+    part2(p1.second)
 }
