@@ -11,33 +11,38 @@ fun parseInput(input: String): List<Pair<String, Int>> {
         }
 }
 
-fun move(instruction: Pair<String, Int>, dialPoint: Int): Pair<Boolean, Int> {
-    when (instruction.first) {
-        "L" -> {
-            var sum = dialPoint - (instruction.second % 100)
-            if (sum < 0) sum += 100
-            return Pair(sum == 0, sum)
-        }
-        "R" -> {
-            var sum = dialPoint + (instruction.second % 100)
-            if (sum > 99) sum -= 100
-            return Pair(sum == 0, sum)
-        }
-    }
-    return Pair(false, 0)
-}
-
-fun part2(instructions: List<Pair<String, Int>>): Int {
-    return 0
-}   
-
 fun part1(instructions: List<Pair<String, Int>>): Int {
     var dialPoint = 50
     var zeroCount = 0
-    for (instruction in instructions) {
-        val (isZero, newPoint) = move(instruction, dialPoint)
-        if(isZero) zeroCount++
-        dialPoint = newPoint
+
+    for ((dir, dist) in instructions) {
+        dialPoint = when (dir) {
+            "L" -> (dialPoint - dist).mod(100)
+            "R" -> (dialPoint + dist).mod(100)
+            else -> error("Invalid direction")
+        }
+
+        if (dialPoint == 0) zeroCount++
+    }
+
+    return zeroCount
+}
+
+fun part2(instructions: List<Pair<String, Int>>): Int {
+    var dialPoint = 50
+    var zeroCount = 0
+
+    for ((dir, dist) in instructions) {
+
+        val step = if (dir == "L") -1 else 1
+
+        zeroCount += dist / 100
+
+        var leftover = dist % 100
+        repeat(leftover) {
+            dialPoint = (dialPoint + step).mod(100)
+            if (dialPoint == 0) zeroCount++
+        }
     }
 
     return zeroCount
