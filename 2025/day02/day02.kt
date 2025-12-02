@@ -1,10 +1,35 @@
 import java.io.File
 
+fun isInvalid2(n: Long): Boolean {
+    val s = n.toString()
+    val L = s.length
+
+    for (k in 1..L/2) {
+        if (L % k != 0) continue  
+
+        val repetitions = L / k
+        if (repetitions < 2) continue
+
+        val base = s.substring(0, k)
+        val candidate = base.repeat(repetitions)
+
+        if (candidate == s) return true
+    }
+
+    return false
+}
+
 fun part2(ranges: List<Pair<Long, Long>>): Long {
-    return 0L
+    var sum = 0L
+    for (range in ranges) {
+        for (i in range.first..range.second) {
+            if (isInvalid2(i)) sum += i
+        }
+    }
+    return sum
 }   
 
-fun isInvalid(n: Long): Boolean {
+fun isInvalid1(n: Long): Boolean {
     val s = n.toString()
     if (s.length % 2 != 0) return false
     val mid = s.length / 2
@@ -15,7 +40,7 @@ fun part1(ranges: List<Pair<Long, Long>>): Long {
     var sum = 0L
     for (range in ranges) {
         for (i in range.first..range.second) {
-            if (isInvalid(i)) sum += i
+            if (isInvalid1(i)) sum += i
         }
     }
     return sum
