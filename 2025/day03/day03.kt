@@ -1,35 +1,56 @@
 import java.io.File
 
-fun part2(input: List<String>): Int {
-    return 0
+fun findNumbers(line: String, index: Int, numsLeft: Int): Pair<Char, Int> {
+    var num = '0'
+    var newIndex = 0
+    for (i in index..line.length-numsLeft) {
+        if (line[i] > num) {
+            num = line[i]
+            newIndex = i
+        }
+        if (num == '9') break
+    }
+    return Pair(num, newIndex)
+}
+
+fun part2(input: List<String>): Long {
+    var sum = 0L
+    var currentIndex = 0
+    var numsLeft = 12
+    var sb: StringBuilder = StringBuilder()
+    for (line in input) {
+        while (numsLeft > 0) {
+            val (num, newIndex) = findNumbers(line, currentIndex, numsLeft)
+            sb.append(num)
+            currentIndex = newIndex + 1
+            numsLeft--
+        }
+        sum += sb.toString().toLong()
+
+        currentIndex = 0
+        numsLeft = 12
+        sb.clear()
+    }
+    return sum
 }   
 
-fun part1(input: List<String>): Int {
-    var sum = 0
-    var indexFirst = 0
-    var first = '0'
-    var second = '0'
+fun part1(input: List<String>): Long {
+    var sum = 0L
+    var currentIndex = 0
+    var numsLeft = 2
+    var sb: StringBuilder = StringBuilder()
     for (line in input) {
-        // Szukanie pierwszej cyfry
-        for (i in 0..line.length-2) {
-            if (line[i] > first) {
-                first = line[i]
-                indexFirst = i
-            }
-            if (first == '9') break
+        while (numsLeft > 0) {
+            val (num, newIndex) = findNumbers(line, currentIndex, numsLeft)
+            sb.append(num)
+            currentIndex = newIndex + 1
+            numsLeft--
         }
-        // Szukanie drugiej cyfry
-        for (i in indexFirst+1..line.length-1) {
-            if (line[i] > second) second = line[i]
-            if (second == '9') break
-        }
+        sum += sb.toString().toLong()
 
-        val combined = "${first}" + "${second}"
-        sum += combined.toInt()
-
-        first = '0'
-        second = '0'
-        indexFirst = 0
+        currentIndex = 0
+        numsLeft = 2
+        sb.clear()
     }
     return sum
 }
