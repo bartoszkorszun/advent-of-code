@@ -6,9 +6,9 @@ fun checkIfAccessible(grid: List<List<Boolean>>, positionYX: Pair<Int, Int>): Bo
         for (j in -1..1) {
             if (
                 positionYX.first + i < 0 ||
-                positionYX.first + i > grid.size - 1 ||
+                positionYX.first + i > grid.size-1 ||
                 positionYX.second + j < 0 ||
-                positionYX.second + j > grid[0].size - 1
+                positionYX.second + j > grid[0].size-1
             ) continue
             if (grid[positionYX.first + i][positionYX.second + j]) sum++
         }
@@ -18,8 +18,24 @@ fun checkIfAccessible(grid: List<List<Boolean>>, positionYX: Pair<Int, Int>): Bo
 }
 
 fun part2(grid: List<List<Boolean>>): Int {
-    
-    return 0
+    val mutableGrid = grid.map { it.toMutableList() }.toMutableList()
+    var sum = 0
+    var y = 0
+    var incFlag = true
+    while (y < grid.size) {
+        incFlag = true
+        for (x in 0..grid[0].size-1) {
+            if (!mutableGrid[y][x]) continue
+            if (checkIfAccessible(mutableGrid, Pair(y,x))) {
+                sum++
+                mutableGrid[y][x] = false
+                y = 0
+                incFlag = false
+            }
+        }
+        if (incFlag) y++
+    }
+    return sum
 }   
 
 fun part1(grid: List<List<Boolean>>): Int {
@@ -41,7 +57,7 @@ fun parseInput(input: List<String>): List<List<Boolean>> {
 }
 
 fun main() {
-    val input = File("test.txt").readText().trim().lines()
+    val input = File("input.txt").readText().trim().lines()
     val grid = parseInput(input)
     
     val p1 = part1(grid)
